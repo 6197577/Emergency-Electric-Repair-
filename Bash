@@ -1,2 +1,0 @@
-cd emergency-electric
-npm install lucide-react

@@ -3,14 +3,33 @@ import Header from '@/components/Header';
 import { notFound } from 'next/navigation';
 import { Calendar, Phone } from 'lucide-react';
 
+// 1. Tell Next.js which cities to build
 export async function generateStaticParams() {
   return cities.map((city) => ({
     slug: city.slug,
   }));
 }
 
-export default function CityPage({ params }) {
-  const city = cities.find((c) => c.slug === params.slug);
+// 2. SEO Title & Description Generator (The Fix)
+export async function generateMetadata({ params }) {
+  const { slug } = await params; // Await params for Next.js 15 compatibility
+  const city = cities.find((c) => c.slug === slug);
+  
+  if (!city) return { title: 'City Not Found' };
+
+  return {
+    title: `Emergency Electrician in ${city.name}, ${city.state} | 24/7 Repair`,
+    description: `Licensed emergency electrician in ${city.name}. Available 24/7 for power outages, burning smells, and urgent repairs. Call ${city.phone}.`,
+    alternates: {
+      canonical: `https://emergencyelectricrepair.com/locations/${city.slug}`,
+    },
+  };
+}
+
+// 3. The Page Content
+export default async function CityPage({ params }) {
+  const { slug } = await params; // Await params here too
+  const city = cities.find((c) => c.slug === slug);
 
   if (!city) {
     notFound();
@@ -31,7 +50,7 @@ export default function CityPage({ params }) {
       }
     },
     "openingHours": "Mo-Su 00:00-24:00",
-    "priceRange": "$$"
+    "priceRange": "$$$$"
   };
 
   return (
@@ -79,7 +98,6 @@ export default function CityPage({ params }) {
           </div>
           
           <div className="flex justify-center p-4 md:p-8 bg-white">
-            {/* Responsive Iframe Container */}
             <div className="w-full max-w-4xl relative" style={{ height: '600px' }}>
               <iframe 
                 src="https://calendar.google.com/calendar/embed?src=c_1c63c21551704472585ed2730b77d70569fa4a6a891b636d4d455494c6e0d2f9%40group.calendar.google.com&ctz=America%2FNew_York" 
@@ -95,9 +113,9 @@ export default function CityPage({ params }) {
       {/* Cross-Sell Section */}
       <section className="container mx-auto px-4 py-8">
         <div className="bg-blue-50 p-8 rounded-xl border border-blue-100 text-center">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Need a Whole-Home Generator?</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Need a Whole-Home Generator or Electrical Inspection?</h2>
           <p className="text-slate-600 mb-6">
-            Don't get caught in the dark in {city.name}. View our top rated backup power solutions.
+            Don't get caught in the dark in {city.name}. Purchase one of our top rated backup power solutions or schedule your electrical inspection discover the condition of your electrical system. Don't allow hazards to shock you!
           </p>
           <button className="text-blue-700 font-bold underline text-lg">See Recommended Generators &rarr;</button>
         </div>
